@@ -1,5 +1,4 @@
-
-import { GameState, PlayerState, ShipConfig, GameMode, InputState, PowerUpType, Enemy, GameResult, GameUiData, Bullet, FloatingText, Language, Particle, Scrap, PowerUp, BossType, BossState } from '../types';
+import { GameState, PlayerState, ShipConfig, GameMode, Enemy, GameResult, GameUiData, Bullet, FloatingText, Language, Particle, Scrap, PowerUp, BossType, PowerUpType } from '../types';
 import { SeededRNG } from '../utils/rng';
 import { sfx, music } from '../audioService';
 import { InputHandler } from './InputHandler';
@@ -394,7 +393,7 @@ export class GameController {
         this.notifyUi();
     }
 
-    private updateBossLogic(dt: number, timestamp: number) {
+    private updateBossLogic(dt: number, _timestamp: number) {
         const boss = this.gameState.boss;
         if (!boss.active) return;
         if (boss.entering) return;
@@ -539,7 +538,7 @@ export class GameController {
         sfx.shoot();
     }
 
-    private handleCombat(dt: number, timestamp: number, fireInput: boolean) {
+    private handleCombat(dt: number, _timestamp: number, fireInput: boolean) {
         if (this.fireCooldown > 0) this.fireCooldown -= dt;
 
         // Auto-fire or Manual
@@ -715,7 +714,7 @@ export class GameController {
         }, 2000);
     }
 
-    private handleEnemyKill(e: Enemy, idx: number) {
+    private handleEnemyKill(e: Enemy, _idx: number) {
         // Drop System
         if (this.random() > 0.6) {
             const s = this.scrapPool.get();

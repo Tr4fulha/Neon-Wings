@@ -1,5 +1,5 @@
 
-import { PlayerState, GameState, ShipConfig, Particle, Star, SectorType } from '../../types';
+import { PlayerState, GameState, ShipConfig } from '../../types';
 
 export const updatePlayerMovement = (
   player: PlayerState, 

@@ -113,9 +113,9 @@ export const Options: React.FC = () => {
                             )}
                         </div>
 
-                        <VolumeSlider label={t.vol_master} value={playerData.audioSettings.masterVolume} onChange={(val) => handleAudioChange('masterVolume', val)} />
-                        <VolumeSlider label={t.vol_music} value={playerData.audioSettings.musicVolume} onChange={(val) => handleAudioChange('musicVolume', val)} />
-                        <VolumeSlider label={t.vol_sfx} value={playerData.audioSettings.sfxVolume} onChange={(val) => handleAudioChange('sfxVolume', val)} />
+                        <VolumeSlider label={t.vol_master} value={playerData.audioSettings.masterVolume} onChange={(val: number) => handleAudioChange('masterVolume', val)} />
+                        <VolumeSlider label={t.vol_music} value={playerData.audioSettings.musicVolume} onChange={(val: number) => handleAudioChange('musicVolume', val)} />
+                        <VolumeSlider label={t.vol_sfx} value={playerData.audioSettings.sfxVolume} onChange={(val: number) => handleAudioChange('sfxVolume', val)} />
                     </div>
                 )}
 

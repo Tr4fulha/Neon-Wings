@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { UPGRADES, MODULES, TRANSLATIONS, APP_VERSION } from '../constants';
+import { UPGRADES, MODULES, TRANSLATIONS } from '../constants';
 import { ArrowLeft, Zap, Shield, Wind, Magnet, Database, Cpu, Droplets, Skull, Box, Layers, Network, Clock, Info, X, Check } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { sfx } from '../audioService';

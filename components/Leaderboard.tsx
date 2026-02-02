@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { getLeaderboard, getDailyLeaderboard } from '../supabaseService';
 import { Profile, DailyScore } from '../types';
-import { ArrowLeft, Trophy, Medal, Crown, Crosshair } from 'lucide-react';
+import { ArrowLeft, Trophy, Crown } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { sfx } from '../audioService';
 import { TRANSLATIONS } from '../constants';
