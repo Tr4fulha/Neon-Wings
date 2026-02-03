@@ -1,5 +1,5 @@
 
-import { Enemy, EnemyType } from '../../types';
+import { Enemy, EnemyType, BossType, BossState } from '../../types';
 import { SeededRNG } from '../../utils/rng';
 
 const getRand = (rng: SeededRNG | null) => {
@@ -15,16 +15,18 @@ export const resetEnemy = (
     rng: SeededRNG | null,
     overrideX?: number,
     overrideType?: EnemyType,
-    overrideTargetY?: number
+    overrideTargetY?: number,
+    squadId?: string
 ) => {
     const randType = getRand(rng);
     
     let type: EnemyType = overrideType || 'scout';
     
-    // Se não for override, usa lógica normal de spawn
+    // Logic: Kamikaze removed
     if (!overrideType) {
         if (randType > 0.8) type = 'fighter';
-        else if (randType > 0.6) type = 'kamikaze';
+        // Removed Kamikaze roll, replaced with more scouts/fighters
+        else if (randType > 0.7) type = 'scout'; 
         
         if (waveNum >= 5 && getRand(rng) > 0.7) type = 'asteroid';
         if (waveNum >= 8 && getRand(rng) > 0.85) type = 'sniper';
@@ -35,39 +37,30 @@ export const resetEnemy = (
     let h = 44 * scale;
     let hp = 2 + (waveNum * 0.3);
     let color = '#00f3ff';
-    let speed = 100 + (waveNum * 5);
+    let speed = 100 + (waveNum * 5); // Base movement speed
     let pattern = 'sine';
     let isEntering = true;
 
-    // Reset properties on existing object first (defaults)
+    // Reset properties
     enemy.active = true;
     enemy.vx = 0;
     enemy.vy = 0;
     enemy.hitFlash = 0;
     enemy.element = 'none';
+    enemy.squadId = squadId;
+    enemy.state = 'entering';
+    enemy.stateTimer = 0;
+    enemy.timeOnScreen = 0; // NEW: Spawn Protection Counter
 
     switch (type) {
         case 'asteroid':
-            // Lógica de Asteroide Melhorada: Tamanho variável afeta HP e Velocidade
-            const sizeMult = 1.0 + getRand(rng) * 1.5; // 1x a 2.5x
+            const sizeMult = 1.0 + getRand(rng) * 1.5; 
             w = 50 * scale * sizeMult; 
             h = 50 * scale * sizeMult; 
-            
-            // Vida escala exponencialmente com o tamanho (Dobro da base + bônus de tamanho)
             hp = (15 + (waveNum * 2)) * sizeMult; 
-            
             color = '#777'; 
-            // Quanto maior, mais lento
             speed = (speed * 0.7) / sizeMult; 
-            
             pattern = 'linear';
-            isEntering = false;
-            break;
-
-        case 'kamikaze':
-            color = '#ef4444'; 
-            speed = (250 + (waveNum * 10)) * scale; 
-            hp = 1 + (waveNum * 0.1); 
             isEntering = false;
             break;
 
@@ -76,7 +69,6 @@ export const resetEnemy = (
             break;
 
         case 'sniper':
-            // Nave amarela
             w = 40 * scale; h = 50 * scale;
             color = '#facc15'; speed *= 0.8; hp = 3 + (waveNum * 0.2); 
             break;
@@ -89,34 +81,57 @@ export const resetEnemy = (
     const spawnX = overrideX !== undefined ? overrideX : getRand(rng) * (canvasWidth - w);
     
     enemy.x = spawnX;
-    enemy.y = -300 * scale;
+    enemy.y = -300 * scale; 
     enemy.width = w;
     enemy.height = h;
     enemy.hp = Math.ceil(hp);
-    
-    // Velocidade inicial (ajustada pelo Physics depois)
-    enemy.vx = (getRand(rng) - 0.5) * speed; 
-    enemy.vy = speed * 0.8; 
+    enemy.maxHp = enemy.hp; // Store max hp for fleeing logic
     
     enemy.type = type;
     enemy.color = color;
-    enemy.shootTimer = 2.0 + getRand(rng) * 3.0;
+    enemy.shootTimer = 1.0 + getRand(rng) * 2.0;
     enemy.pattern = pattern;
     enemy.baseX = spawnX;
     enemy.isEntering = isEntering;
     
-    // Target Y: Posição de combate
-    enemy.targetY = overrideTargetY || ((80 * scale) + getRand(rng) * (canvasHeight / 2.5));
+    enemy.targetY = overrideTargetY || ((80 * scale) + getRand(rng) * (canvasHeight * 0.3));
 
     if (type === 'asteroid') {
-        enemy.targetY = canvasHeight + 500; // Vai até o fim da tela
+        enemy.targetY = canvasHeight + 500; 
         enemy.vy = speed;
-        enemy.vx = (getRand(rng) - 0.5) * speed * 0.5; // Drift lateral leve
+        enemy.vx = (getRand(rng) - 0.5) * speed * 0.5; 
+        enemy.state = 'attacking'; 
     }
     
-    if (type === 'kamikaze') {
-        enemy.targetY = canvasHeight + 200;
-        enemy.vy = speed;
-        enemy.vx = (getRand(rng) - 0.5) * (speed * 0.2);
+    // Slow entry logic: Set initial vy to something slow
+    if (enemy.state === 'entering') {
+        enemy.vy = 150 * scale; // Much slower than before
     }
+};
+
+export const spawnBoss = (
+    width: number, 
+    wave: number, 
+    scale: number,
+    bossType: BossType = 'titan'
+): BossState => {
+    // Reduced base HP by 50%
+    const baseHp = bossType === 'titan' ? 500 : bossType === 'wraith' ? 300 : 400;
+    
+    return {
+        active: true,
+        type: bossType,
+        x: width / 2 - 60,
+        y: -200,
+        targetY: 120 * scale,
+        width: 120 * scale,
+        height: 120 * scale,
+        hp: baseHp * (1 + wave * 0.2), 
+        maxHp: baseHp * (1 + wave * 0.2),
+        phase: 1,
+        shootTimer: 2.0,
+        moveDir: 1,
+        entering: true,
+        hitFlash: 0
+    };
 };

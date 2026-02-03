@@ -1,4 +1,5 @@
 
+
 import { Language } from '../types';
 
 export const TRANSLATIONS: Record<Language, any> = {
@@ -45,16 +46,25 @@ export const TRANSLATIONS: Record<Language, any> = {
     hud_opacity: "OPACIDADE GERAL",
     hud_scale: "ESCALA GERAL",
     left_handed: "MODO CANHOTO",
+    joy_type: "TIPO DE JOYSTICK",
+    joy_static: "ESTÁTICO",
+    joy_dynamic: "DINÂMICO",
     quit: "SAIR DA MISSÃO",
     pause: "PAUSA TÁTICA",
     continue: "CONTINUAR",
+    loading_mission: "CARREGANDO MISSÃO",
+    tips: [
+        "DICA: Inimigos Sniper miram diretamente em você. Mantenha-se em movimento.",
+        "DICA: Colete Power-ups para aumentar drasticamente suas chances de sobrevivência.",
+        "DICA: O Dash te deixa invulnerável por um breve momento. Use para atravessar tiros.",
+        "DICA: Destrua esquadrões completos para ganhar bônus de pontuação.",
+        "DICA: Use sua habilidade ULTRA para limpar a tela em momentos de pânico."
+    ],
     
-    // Categorias de Opções
     cat_audio: "ÁUDIO",
     cat_lang: "IDIOMA",
     cat_ctrl: "CONTROLES",
 
-    // Categorias da Loja
     shop_cats: {
         equipment: "EQUIPAMENTOS",
         cards: "CARTAS / MÓDULOS",
@@ -85,7 +95,6 @@ export const TRANSLATIONS: Record<Language, any> = {
     owned: "POSSUÍDO",
     empty_slot: "VAZIO",
     
-    // Detalhes da Loja
     item_details: "DETALHES TÉCNICOS",
     cost: "CUSTO",
 
@@ -95,7 +104,6 @@ export const TRANSLATIONS: Record<Language, any> = {
         striker: { desc: "Poder de fogo pesado, lenta.", mastery: "+20% Dano Crítico (Nvl 5)" }
     },
     
-    // Traduções que faltavam
     upgrades: {
         reinforced_hull: { 
             name: "CASCO REFORÇADO", 
@@ -136,23 +144,37 @@ export const TRANSLATIONS: Record<Language, any> = {
 
     powerups: {
       health: "REPARO",
-      triple_shot: "TIRO TRIPLO",
-      rapid_fire: "CADÊNCIA",
       shield: "ESCUDO",
       battery: "BATERIA",
       nuke: "NUCLEAR",
-      damage: "DANO+"
+      damage: "DANO+",
+      wpn_shotgun: "SHOTGUN",
+      wpn_laser: "LASER",
+      wpn_missile: "MÍSSIL",
+      drone: "DRONE"
     },
     changelog: [
-      { version: '1.9.9', changes: [
-          'REFACTOR: Sistema de Spawner extraído para melhor performance.',
-          'DAILY OPS: Garantia de RNG determinístico para justiça competitiva.',
-          'Código da GameEngine otimizado.'
+      { version: '2.0.3', changes: [
+          'GAMEPLAY: Mapa totalmente liberado para o jogador.',
+          'GAMEPLAY: Drop rate de Power-ups aumentado significativamente.',
+          'GAMEPLAY: IA de Snipers melhorada (Mira Direta).',
+          'VISUAL: Nova animação de entrada da nave.',
+          'UI: Tela de carregamento de missão adicionada.'
       ]},
-      { version: '1.9.8', changes: [
-          'NOVO MODO: Daily Ops (Desafio Diário).',
-          'Leaderboard separado para o Daily Ops.',
-          'Nova Moeda (em breve): Dark Matter.'
+      { version: '2.0.2', changes: [
+          'CONTROLS: Opção de Joystick Estático.',
+          'GAMEPLAY: Inimigos agora entram lentamente.',
+          'GAMEPLAY: Inimigos formam esquadrões táticos (Linha, V).',
+          'GAMEPLAY: Tiros inimigos mais rápidos e perigosos.',
+          'VISUAL: Animação de Warp-in do Jogador.',
+          'VISUAL: Feedback visual de dano (Flash Vermelho).'
+      ]},
+      { version: '2.0.1', changes: [
+          'GAMEPLAY: Nova física de movimento "Snappy".',
+          'GAMEPLAY: Mecânica de Dash (Shift/Botão).',
+          'ARSENAL: Shotgun, Laser e Mísseis adicionados.',
+          'ARSENAL: Drones de defesa adicionados.',
+          'GAMEPLAY: Hitbox do jogador reduzida (Grazing).'
       ]}
     ]
   },
@@ -199,9 +221,20 @@ export const TRANSLATIONS: Record<Language, any> = {
     hud_opacity: "GLOBAL OPACITY",
     hud_scale: "GLOBAL SCALE",
     left_handed: "LEFT HANDED",
+    joy_type: "JOYSTICK TYPE",
+    joy_static: "STATIC",
+    joy_dynamic: "DYNAMIC",
     quit: "ABORT MISSION",
     pause: "TACTICAL PAUSE",
     continue: "RESUME",
+    loading_mission: "LOADING MISSION",
+    tips: [
+        "TIP: Sniper enemies aim directly at you. Keep moving.",
+        "TIP: Collect Power-ups to drastically increase survival chances.",
+        "TIP: Dashing makes you invulnerable briefly. Use it to cross bullets.",
+        "TIP: Destroy full squads to earn score bonuses.",
+        "TIP: Use your ULTRA ability to clear the screen in panic moments."
+    ],
 
     cat_audio: "AUDIO",
     cat_lang: "LANGUAGE",
@@ -246,7 +279,6 @@ export const TRANSLATIONS: Record<Language, any> = {
         striker: { desc: "Heavy firepower, slow.", mastery: "+20% Crit Damage (Lvl 5)" }
     },
     
-    // Missing translations added
     upgrades: {
         reinforced_hull: { 
             name: "REINFORCED HULL", 
@@ -287,23 +319,37 @@ export const TRANSLATIONS: Record<Language, any> = {
 
     powerups: {
       health: "REPAIR",
-      triple_shot: "TRIPLE SHOT",
-      rapid_fire: "RAPID FIRE",
       shield: "SHIELD",
       battery: "BATTERY",
       nuke: "NUKE",
-      damage: "DAMAGE+"
+      damage: "DAMAGE+",
+      wpn_shotgun: "SHOTGUN",
+      wpn_laser: "LASER",
+      wpn_missile: "MISSILE",
+      drone: "DRONE"
     },
     changelog: [
-      { version: '1.9.9', changes: [
-          'REFACTOR: Extracted Spawner System for better performance.',
-          'DAILY OPS: Ensured deterministic RNG for competitive fairness.',
-          'GameEngine code optimized.'
+      { version: '2.0.3', changes: [
+          'GAMEPLAY: Full map mobility unlocked.',
+          'GAMEPLAY: Power-up drop rate increased significantly.',
+          'GAMEPLAY: Improved Sniper AI (Direct Aiming).',
+          'VISUAL: New Ship Entry Animation.',
+          'UI: Mission Loading Screen added.'
       ]},
-      { version: '1.9.8', changes: [
-          'NEW MODE: Daily Ops.',
-          'Separate Leaderboard for Daily Ops.',
-          'New Currency (coming soon): Dark Matter.'
+      { version: '2.0.2', changes: [
+          'CONTROLS: Static Joystick option.',
+          'GAMEPLAY: Enemies enter slowly.',
+          'GAMEPLAY: Tactical Squad Formations.',
+          'GAMEPLAY: Faster/Deadlier enemy bullets.',
+          'VISUAL: Player Warp-in animation.',
+          'VISUAL: Damage Flash feedback.'
+      ]},
+      { version: '2.0.1', changes: [
+          'GAMEPLAY: Snappy movement physics.',
+          'GAMEPLAY: Dash mechanics.',
+          'ARSENAL: Shotgun, Laser, Missiles added.',
+          'ARSENAL: Defense Drones added.',
+          'GAMEPLAY: Smaller player hitbox (Grazing).'
       ]}
     ]
   },
@@ -350,9 +396,20 @@ export const TRANSLATIONS: Record<Language, any> = {
     hud_opacity: "OPACIDAD GLOBAL",
     hud_scale: "ESCALA GLOBAL",
     left_handed: "MODO ZURDO",
+    joy_type: "TIPO DE JOYSTICK",
+    joy_static: "ESTÁTICO",
+    joy_dynamic: "DINÁMICO",
     quit: "ABORTAR MISIÓN",
     pause: "PAUSA TÁCTICA",
     continue: "CONTINUAR",
+    loading_mission: "CARGANDO MISIÓN",
+    tips: [
+        "CONSEJO: Los francotiradores apuntan directamente a ti. Muévete.",
+        "CONSEJO: Recoge potenciadores para aumentar tu supervivencia.",
+        "CONSEJO: El Dash te hace invulnerable. Úsalo para cruzar balas.",
+        "CONSEJO: Destruye escuadrones completos para obtener bonificaciones.",
+        "CONSEJO: Usa tu habilidad ULTRA para limpiar la pantalla en pánico."
+    ],
 
     cat_audio: "AUDIO",
     cat_lang: "IDIOMA",
@@ -397,7 +454,6 @@ export const TRANSLATIONS: Record<Language, any> = {
         striker: { desc: "Alto poder, lenta.", mastery: "+20% Daño Crítico (Nvl 5)" }
     },
     
-    // Traducciones
     upgrades: {
         reinforced_hull: { 
             name: "CASCO REFORZADO", 
@@ -438,23 +494,36 @@ export const TRANSLATIONS: Record<Language, any> = {
 
     powerups: {
       health: "REPARAR",
-      triple_shot: "TIRO TRIPLE",
-      rapid_fire: "CADENCIA",
       shield: "ESCUDO",
       battery: "BATERÍA",
       nuke: "NUCLEAR",
-      damage: "DAÑO+"
+      damage: "DAÑO+",
+      wpn_shotgun: "SHOTGUN",
+      wpn_laser: "LASER",
+      wpn_missile: "MÍSSIL",
+      drone: "DRONE"
     },
     changelog: [
-      { version: '1.9.9', changes: [
-          'REFACTOR: Sistema de Spawner extraído para mejor rendimiento.',
-          'DAILY OPS: RNG determinístico garantizado.',
-          'Código GameEngine optimizado.'
+      { version: '2.0.3', changes: [
+          'GAMEPLAY: Movilidad completa del mapa.',
+          'GAMEPLAY: Drop rate de Power-ups aumentado.',
+          'GAMEPLAY: IA de Snipers mejorada.',
+          'VISUAL: Nueva animación de entrada.',
+          'UI: Pantalla de carga de misión.'
       ]},
-      { version: '1.9.8', changes: [
-          'NUEVO MODO: Daily Ops.',
-          'Leaderboard separado.',
-          'Nueva Moneda (pronto): Dark Matter.'
+      { version: '2.0.2', changes: [
+          'CONTROLS: Joytick Estático opción.',
+          'GAMEPLAY: Enemigos entran lento.',
+          'GAMEPLAY: Formaciones Tácticas.',
+          'GAMEPLAY: Balas enemigas más rápidas.',
+          'VISUAL: Warp-in del jugador.',
+          'VISUAL: Flash de Daño.'
+      ]},
+      { version: '2.0.1', changes: [
+          'GAMEPLAY: Física Snappy & Dash.',
+          'ARSENAL: Shotgun, Laser, Mísseis.',
+          'ARSENAL: Drones.',
+          'GAMEPLAY: Hitbox reduzida.'
       ]}
     ]
   }

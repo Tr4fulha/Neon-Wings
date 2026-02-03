@@ -1,8 +1,10 @@
 
+
 export class InputHandler {
     private keys: Set<string> = new Set();
     public joystick: { x: number, y: number } = { x: 0, y: 0 };
     public isFiring: boolean = false;
+    public isDashing: boolean = false;
 
     constructor() {
         this.bind();
@@ -40,6 +42,10 @@ export class InputHandler {
         this.isFiring = firing;
     }
 
+    public setDashing(dashing: boolean) {
+        this.isDashing = dashing;
+    }
+
     public getState() {
         const keysObj: { [key: string]: boolean } = {};
         this.keys.forEach(k => keysObj[k] = true);
@@ -47,7 +53,8 @@ export class InputHandler {
         return {
             keys: keysObj,
             joystick: this.joystick,
-            fire: this.isFiring || this.keys.has(' ')
+            fire: this.isFiring || this.keys.has(' '),
+            dash: this.isDashing
         };
     }
 }

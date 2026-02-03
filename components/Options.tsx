@@ -1,15 +1,16 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../constants';
-import { Maximize, Minimize, LayoutTemplate, Volume2, Globe, Joystick, Speaker, Activity } from 'lucide-react';
+import { Maximize, Minimize, LayoutTemplate, Volume2, Globe, Joystick, Speaker, Activity, Anchor } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { sfx } from '../audioService';
 
 type Tab = 'audio' | 'lang' | 'controls';
 
 export const Options: React.FC = () => {
-  const { playerData, setLanguage, goToMenu, setScreen, updateAudioSettings } = useGame();
+  const { playerData, setLanguage, goToMenu, setScreen, updateAudioSettings, updateHudSettings } = useGame();
   const t = TRANSLATIONS[playerData.language];
   const [activeTab, setActiveTab] = useState<Tab>('audio');
   const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
@@ -50,6 +51,11 @@ export const Options: React.FC = () => {
   const handleAudioChange = (key: 'masterVolume' | 'musicVolume' | 'sfxVolume', value: number) => {
       const newSettings = { ...playerData.audioSettings, [key]: value };
       updateAudioSettings(newSettings);
+  };
+
+  const toggleStaticJoystick = () => {
+      sfx.uiClick();
+      updateHudSettings({ ...playerData.hudSettings, staticJoystick: !playerData.hudSettings.staticJoystick });
   };
 
   return (
@@ -136,6 +142,23 @@ export const Options: React.FC = () => {
 
                 {activeTab === 'controls' && (
                     <div className="space-y-8 animate-fade-in">
+                        
+                        <section className="space-y-4">
+                            <label className="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em]">{t.joy_type}</label>
+                            <button 
+                                onClick={toggleStaticJoystick}
+                                className={`w-full p-6 flex items-center justify-between border-2 transition-all group ${playerData.hudSettings.staticJoystick ? 'border-purple-900/30 bg-purple-950/20 text-purple-400' : 'border-blue-900/30 bg-blue-950/20 text-blue-400'}`}
+                            >
+                                <div className="flex items-center gap-6">
+                                    <Anchor size={28} className={playerData.hudSettings.staticJoystick ? "text-purple-400" : "text-gray-600"}/>
+                                    <span className="font-display font-black text-xl md:text-2xl italic tracking-tighter uppercase">
+                                        {playerData.hudSettings.staticJoystick ? t.joy_static : t.joy_dynamic}
+                                    </span>
+                                </div>
+                                <span className="text-xs font-bold opacity-60 uppercase">{playerData.hudSettings.staticJoystick ? 'FIXED POSITION' : 'FOLLOW TOUCH'}</span>
+                            </button>
+                        </section>
+
                         <section className="space-y-4">
                             <label className="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em]">{t.hud_editor}</label>
                             <button 

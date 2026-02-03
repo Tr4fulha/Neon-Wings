@@ -1,6 +1,6 @@
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Pause, Zap } from 'lucide-react';
+import { Pause, Zap, Target } from 'lucide-react';
 import { TRANSLATIONS } from '../constants';
 import { useGame } from '../context/GameContext';
 import { GameController } from '../core/GameController';
@@ -25,21 +25,30 @@ export const GameEngine: React.FC = () => {
   const [deathMessage, setDeathMessage] = useState("");
   const [warningMessage, setWarningMessage] = useState(""); 
   const [isDead, setIsDead] = useState(false);
+  const [damageFlash, setDamageFlash] = useState(false);
   
+  // Joystick Visibility State - State trigger re-render on touch
+  const [isJoyActive, setIsJoyActive] = useState(false);
+  
+  // Loading State
+  const [missionLoading, setMissionLoading] = useState(true);
+  const [randomTip, setRandomTip] = useState("");
+
   // Visual Joystick Ref
   const joystickRef = useRef<{ active: boolean; id: number | null; base: { x: number; y: number }; stick: { x: number; y: number } | null }>({
     active: false, id: null, base: { x: 0, y: 0 }, stick: null
   });
 
-  const hud = hudSettings || { opacity: 0.7, scale: 1.0, leftHanded: false, joystickPos: { x: 15, y: 75 }, skillBtnPos: { x: 85, y: 75 } };
+  const hud = hudSettings || { opacity: 0.7, scale: 1.0, leftHanded: false, staticJoystick: false, joystickPos: { x: 15, y: 75 }, skillBtnPos: { x: 85, y: 75 } };
 
   // Inicialização do Controller e Eventos
   useEffect(() => {
+      // Set random tip
+      const tips = t.tips || ["SURVIVE."];
+      setRandomTip(tips[Math.floor(Math.random() * tips.length)]);
+
       if (!canvasRef.current) return;
 
-      // CRITICAL FIX: Definir o tamanho do canvas ANTES de criar o controller
-      // Isso garante que estrelas, jogador e balas nasçam nas coordenadas corretas
-      // e não amontoados no 0,0 ou 300,150 padrão.
       canvasRef.current.width = window.innerWidth;
       canvasRef.current.height = window.innerHeight;
 
@@ -55,6 +64,11 @@ export const GameEngine: React.FC = () => {
       
       const unsubUi = controller.events.on<GameUiData>('ui_update', (data) => {
           setUiState(prev => {
+              // Trigger Damage Flash se corações diminuírem
+              if (data.hearts < prev.hearts) {
+                  setDamageFlash(true);
+                  setTimeout(() => setDamageFlash(false), 150);
+              }
               if (prev.score === data.score && prev.hearts === data.hearts && prev.energy === Math.floor(data.energy)) return prev;
               return { score: data.score, wave: data.wave, hearts: data.hearts, energy: data.energy };
           });
@@ -75,7 +89,12 @@ export const GameEngine: React.FC = () => {
       });
 
       controllerRef.current = controller;
-      controller.start();
+      
+      // Delay game start for loading screen
+      setTimeout(() => {
+          setMissionLoading(false);
+          controller.start();
+      }, 3000);
 
       const resize = () => {
           if (canvasRef.current && controllerRef.current) {
@@ -86,7 +105,6 @@ export const GameEngine: React.FC = () => {
           }
       };
       window.addEventListener('resize', resize);
-      // Chama o resize uma vez para garantir que a escala (s) esteja correta no controller
       resize();
 
       return () => {
@@ -99,7 +117,6 @@ export const GameEngine: React.FC = () => {
       };
   }, []);
 
-  // Pause Logic
   useEffect(() => {
       if (controllerRef.current) {
           if (isPaused) controllerRef.current.pause();
@@ -107,33 +124,51 @@ export const GameEngine: React.FC = () => {
       }
   }, [isPaused]);
 
-  // Keyboard Event Listeners (UI)
   useEffect(() => {
-      const hKD = (e: KeyboardEvent) => { 
-          if(e.key === 'Escape') setIsPaused(p => !p); 
-      };
-      
+      const hKD = (e: KeyboardEvent) => { if(e.key === 'Escape') setIsPaused(p => !p); };
       window.addEventListener('keydown', hKD); 
-      return () => { 
-          window.removeEventListener('keydown', hKD); 
-      };
+      return () => { window.removeEventListener('keydown', hKD); };
   }, []);
 
-  // Touch Handlers for Virtual Joystick & Fire
+  // --- TOUCH LOGIC REVAMPED ---
   const handleTouchStart = (e: React.TouchEvent) => {
+      if (missionLoading) return;
       const touches = e.changedTouches;
       const width = window.innerWidth;
+      const height = window.innerHeight;
+
       for (let i = 0; i < touches.length; i++) {
           const t = touches[i];
           const isLeftSide = hud.leftHanded ? t.clientX > width / 2 : t.clientX < width / 2;
+          
           if (isLeftSide && !joystickRef.current.active) {
-              joystickRef.current = { 
-                  active: true, 
-                  id: t.identifier, 
-                  base: { x: t.clientX, y: t.clientY }, 
-                  stick: { x: t.clientX, y: t.clientY } 
-              };
-              controllerRef.current?.setJoystick(0, 0);
+              // STATIC JOYSTICK LOGIC
+              if (hud.staticJoystick) {
+                  const baseX = (hud.joystickPos.x / 100) * width;
+                  const baseY = (hud.joystickPos.y / 100) * height;
+                  
+                  const dist = Math.sqrt(Math.pow(t.clientX - baseX, 2) + Math.pow(t.clientY - baseY, 2));
+                  if (dist < 100 * hud.scale) {
+                      joystickRef.current = { 
+                          active: true, 
+                          id: t.identifier, 
+                          base: { x: baseX, y: baseY }, 
+                          stick: { x: t.clientX, y: t.clientY } 
+                      };
+                      setIsJoyActive(true); // Force render
+                  }
+              } 
+              // DYNAMIC JOYSTICK LOGIC
+              else {
+                  joystickRef.current = { 
+                      active: true, 
+                      id: t.identifier, 
+                      base: { x: t.clientX, y: t.clientY }, 
+                      stick: { x: t.clientX, y: t.clientY } 
+                  };
+                  setIsJoyActive(true); // Force render
+                  controllerRef.current?.setJoystick(0, 0);
+              }
           }
       }
       updateFireState(e.touches);
@@ -176,13 +211,13 @@ export const GameEngine: React.FC = () => {
       updateFireState(allTouches);
   };
 
-  // FIX: Reset joystick on Touch End OR Touch Cancel
   const handleTouchEndOrCancel = (e: React.TouchEvent) => {
       const changed = e.changedTouches;
       for (let i = 0; i < changed.length; i++) {
           const t = changed[i];
           if (joystickRef.current.active && t.identifier === joystickRef.current.id) {
                joystickRef.current = { active: false, id: null, base: { x: 0, y: 0 }, stick: null };
+               setIsJoyActive(false); // Force render to hide
                if (controllerRef.current) {
                    controllerRef.current.setJoystick(0, 0);
                }
@@ -210,10 +245,7 @@ export const GameEngine: React.FC = () => {
   };
 
   const handleQuit = () => {
-      // CORREÇÃO: Parar o loop do jogo e voltar ao menu diretamente
-      if (controllerRef.current) {
-          controllerRef.current.stop();
-      }
+      if (controllerRef.current) controllerRef.current.stop();
       goToMenu();
   };
 
@@ -245,6 +277,32 @@ export const GameEngine: React.FC = () => {
         onTouchCancel={handleTouchEndOrCancel}
         onContextMenu={(e) => e.preventDefault()}
     >
+      {/* Damage Flash Overlay */}
+      <div 
+        className={`absolute inset-0 bg-red-600 pointer-events-none z-[80] transition-opacity duration-150 ${damageFlash ? 'opacity-40' : 'opacity-0'}`}
+      ></div>
+
+      {/* Loading Screen Overlay */}
+      {missionLoading && (
+          <div className="absolute inset-0 z-[300] bg-black flex flex-col items-center justify-center p-8">
+              <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ 
+                  backgroundImage: `linear-gradient(#00f3ff 1px, transparent 1px), linear-gradient(90deg, #00f3ff 1px, transparent 1px)`,
+                  backgroundSize: '40px 40px'
+              }}></div>
+              
+              <div className="relative z-10 text-center animate-fade-in">
+                  <div className="w-16 h-16 border-t-4 border-cyan-500 rounded-full animate-spin mx-auto mb-8 shadow-[0_0_20px_cyan]"></div>
+                  <h2 className="text-3xl font-display font-black text-white italic tracking-widest uppercase mb-4 animate-pulse">
+                      {t.loading_mission || "INITIALIZING..."}
+                  </h2>
+                  <div className="bg-gray-900/80 border border-cyan-500/30 p-4 max-w-md mx-auto rounded">
+                      <p className="text-cyan-400 text-xs font-bold tracking-widest uppercase mb-2">TACTICAL ADVICE</p>
+                      <p className="text-gray-300 text-sm leading-relaxed">{randomTip}</p>
+                  </div>
+              </div>
+          </div>
+      )}
+
       {isPaused && !isDead && (
         <div className="absolute inset-0 z-[200] bg-black/80 flex items-center justify-center backdrop-blur-sm">
              <div className="bg-[#0a0610] border border-cyan-500/50 p-8 rounded text-center w-80 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
@@ -255,7 +313,6 @@ export const GameEngine: React.FC = () => {
         </div>
       )}
 
-      {/* Warning Overlay */}
       {warningMessage && !isDead && (
           <div className="absolute top-1/4 left-0 right-0 z-[100] flex justify-center pointer-events-none">
               <div className="bg-red-900/40 border-y-2 border-red-500/80 px-12 py-4 animate-pulse backdrop-blur-sm">
@@ -301,7 +358,23 @@ export const GameEngine: React.FC = () => {
       </div>
       )}
 
-      {!isDead && joystickRef.current.active && (
+      {/* JOYSTICK RENDERING */}
+      {!isDead && hud.staticJoystick && (
+          <div className="absolute z-[150] pointer-events-none transition-opacity duration-200" 
+               style={{ 
+                   left: `${hud.joystickPos.x}%`, 
+                   top: `${hud.joystickPos.y}%`, 
+                   transform: `translate(-50%, -50%) scale(${hud.scale})`,
+                   opacity: isJoyActive ? hud.opacity : hud.opacity * 0.3
+               }}
+          >
+              <div className="w-[100px] h-[100px] rounded-full border-2 border-cyan-400 bg-cyan-500/10 flex items-center justify-center">
+                  <div ref={stickRef} className={`w-10 h-10 rounded-full shadow-lg ${isJoyActive ? 'bg-cyan-200' : 'bg-gray-500'}`}></div>
+              </div>
+          </div>
+      )}
+
+      {!isDead && !hud.staticJoystick && isJoyActive && (
           <div className="absolute z-[150] pointer-events-none" style={{ left: joystickRef.current.base.x - 50 * hud.scale, top: joystickRef.current.base.y - 50 * hud.scale }}>
               <div className="w-[100px] h-[100px] rounded-full border-2 border-cyan-400 bg-cyan-500/10 flex items-center justify-center" style={{ transform: `scale(${hud.scale})` }}>
                   <div ref={stickRef} className="w-10 h-10 rounded-full bg-white shadow-lg"></div>

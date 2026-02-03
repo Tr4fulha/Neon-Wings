@@ -189,7 +189,7 @@ const playBuffer = (key: string, vol: number = 1.0, loop: boolean = false): bool
 
 // --- SINTETIZADORES (FALLBACK) ---
 
-const playTone = (freq: number, type: OscillatorType, duration: number, slideTo: number | null = null, vol: number = 0.5) => {
+export const playTone = (freq: number, type: OscillatorType, duration: number, slideTo: number | null = null, vol: number = 0.5) => {
   if (isMuted) return;
   if (!audioCtx || !sfxGain) initAudio();
   if (!audioCtx || !sfxGain) return;

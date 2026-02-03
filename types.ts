@@ -1,5 +1,4 @@
 
-
 export type Screen = 'menu' | 'shop' | 'options' | 'credits' | 'ship-select' | 'game' | 'game-over' | 'leaderboard' | 'splash' | 'changelog' | 'hud-editor';
 
 export type Language = 'pt' | 'en' | 'es';
@@ -12,6 +11,7 @@ export interface HUDSettings {
   opacity: number; 
   scale: number; 
   leftHanded: boolean;
+  staticJoystick: boolean; // NOVO: Opção para fixar o joystick
   joystickPos: { x: number; y: number }; 
   skillBtnPos: { x: number; y: number }; 
 }
@@ -122,11 +122,14 @@ export interface GameUiData {
     energy: number;
     bossHp: number;
     bossMax: number;
+    dashCooldown: number;
 }
 
-export type PowerUpType = 'health' | 'triple_shot' | 'rapid_fire' | 'shield' | 'battery' | 'nuke' | 'damage';
+export type PowerUpType = 'health' | 'shield' | 'battery' | 'nuke' | 'damage' | 'wpn_shotgun' | 'wpn_laser' | 'wpn_missile' | 'drone';
 
-export type EnemyType = 'scout' | 'fighter' | 'asteroid' | 'kamikaze' | 'sniper' | 'tank';
+export type WeaponType = 'blaster' | 'shotgun' | 'laser' | 'missile';
+
+export type EnemyType = 'scout' | 'fighter' | 'asteroid' | 'sniper' | 'tank';
 export type ElementalType = 'none' | 'ice' | 'fire';
 
 export interface Particle {
@@ -157,6 +160,14 @@ export interface InputState {
     keys: { [key: string]: boolean };
     joystick: { x: number, y: number };
     fire: boolean;
+    dash: boolean;
+}
+
+export interface Drone {
+    active: boolean;
+    angle: number;
+    distance: number;
+    lastShot: number;
 }
 
 export interface PlayerState {
@@ -180,15 +191,25 @@ export interface PlayerState {
   
   killCount: number; 
   
+  // Weapon System
+  weapon: WeaponType;
+  weaponTimer: number; // Tempo restante da arma especial
+  
+  drones: Drone[];
+
   timers: {
-    rapid_fire: number;
-    triple_shot: number;
     shield: number;
-    laser: number;
-    missile: number;
     skill_active: number;
     damage: number;
+    rapid_fire: number;
+    triple_shot: number;
   };
+
+  dashCooldown: number;
+  isDashing: boolean;
+  
+  // NOVO: Warp-in animation state
+  isEntering: boolean;
 }
 
 export interface Bullet {
@@ -201,11 +222,15 @@ export interface Bullet {
   vx?: number;
   color: string;
   element?: ElementalType;
-  // Novos atributos para armas diferenciadas
+  
   damage: number;
+  type: 'normal' | 'plasma' | 'laser' | 'pellet' | 'missile';
+  
+  // Behaviors
   isHoming?: boolean;
   isExplosive?: boolean;
-  targetId?: number; // Para tracking simples
+  penetration?: number; // Quantos inimigos atravessa
+  lifeTime?: number; // Para shotgun sumir rápido
 }
 
 export interface Enemy {
@@ -217,6 +242,7 @@ export interface Enemy {
   width: number;
   height: number;
   hp: number;
+  maxHp: number; // Needed for damage % check
   type: EnemyType;
   element?: ElementalType;
   color: string;
@@ -226,6 +252,14 @@ export interface Enemy {
   isEntering: boolean;
   targetY: number;
   hitFlash: number;
+  
+  // New Intelligent Behaviors
+  squadId?: string; // Se pertencer a um esquadrão
+  state: 'entering' | 'hovering' | 'fleeing' | 'attacking'; // Máquina de estados simples
+  stateTimer: number; // Timer para transição de estados
+  
+  // NEW: Protection Time
+  timeOnScreen: number;
 }
 
 export type BossType = 'observer' | 'titan' | 'wraith';
@@ -246,11 +280,10 @@ export interface BossState {
   moveDir: number;
   hitFlash: number;
   
-  // Habilidades Específicas
-  chargeFlash?: number; // Titan: aviso antes de investir
-  isCharging?: boolean; // Titan: estado de investida
-  teleportTimer?: number; // Wraith: cooldown do teleporte
-  opacity?: number; // Wraith: efeito visual
+  chargeFlash?: number;
+  isCharging?: boolean; 
+  teleportTimer?: number; 
+  opacity?: number; 
 }
 
 export interface Scrap {
@@ -299,7 +332,11 @@ export interface GameState {
   scrapCollected: number;
   currentCombo: number;
   comboTimer: number;
-  shake: number;
+  
+  // JUICE: Directional Shake
+  shakeX: number;
+  shakeY: number;
+  
   boss: BossState;
   waveCount: number;
   

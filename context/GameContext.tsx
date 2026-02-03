@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Screen, PlayerData, ShipConfig, Upgrade, GameResult, Language, HUDSettings, AudioSettings, Module, GameMode } from '../types';
 import { SHIPS, APP_VERSION } from '../constants';
@@ -54,6 +53,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         opacity: 0.7,
         scale: 1.0,
         leftHanded: false,
+        staticJoystick: false,
         joystickPos: { x: 15, y: 75 },
         skillBtnPos: { x: 85, y: 75 }
     },

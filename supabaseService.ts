@@ -1,4 +1,5 @@
 
+
 import { createClient } from '@supabase/supabase-js';
 import { PlayerData, Profile, HUDSettings, AudioSettings, DailyScore } from './types';
 
@@ -18,6 +19,7 @@ const DEFAULT_HUD: HUDSettings = {
   opacity: 0.7,
   scale: 1.0,
   leftHanded: false,
+  staticJoystick: false, // Default is Dynamic
   joystickPos: { x: 15, y: 75 },
   skillBtnPos: { x: 85, y: 75 }
 };

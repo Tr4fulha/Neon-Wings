@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { TRANSLATIONS } from '../constants';
@@ -49,6 +48,7 @@ export const HUDEditor: React.FC = () => {
           opacity: 0.7,
           scale: 1.0,
           leftHanded: false,
+          staticJoystick: false,
           joystickPos: { x: 15, y: 75 },
           skillBtnPos: { x: 85, y: 75 }
       });
