@@ -1,4 +1,5 @@
 
+
 export type Screen = 'menu' | 'shop' | 'options' | 'credits' | 'ship-select' | 'game' | 'game-over' | 'leaderboard' | 'splash' | 'changelog' | 'hud-editor';
 
 export type Language = 'pt' | 'en' | 'es';
